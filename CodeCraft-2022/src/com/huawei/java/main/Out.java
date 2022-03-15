@@ -4,9 +4,7 @@ import java.io.*;
 
 public class Out {
     public void output(String str){
-        String word="hello  huawei";
-        word=word+"\r\n";
-        word=word+"测试";
+        String word="";
         word=word+str;
         StringBuffer text = new StringBuffer();
         BufferedOutputStream buff = null;
