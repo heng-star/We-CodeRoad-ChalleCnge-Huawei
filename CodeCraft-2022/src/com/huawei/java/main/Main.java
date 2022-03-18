@@ -1,17 +1,14 @@
 package com.huawei.java.main;
 
 import javax.annotation.Resource;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.security.Principal;
 import java.util.*;
 
 public class Main {
 
 	public static void main(String[] args) {
-		System.out.println("Hello World");
+		//System.out.println("Hello World");
 		Readfile readfile = new Readfile();
 		readfile.readsite();
 		ArrayList<String> sitenamedot=readfile.sitename;
@@ -42,7 +39,7 @@ public class Main {
 //		}
 		readfile.readqoscon();
 		int qoscon=readfile.qos_constraint;
-		System.out.println(qoscon);
+		//System.out.println(qoscon);
 		Out out = new Out();
 		out.output("测试创建文件");
 
@@ -59,32 +56,51 @@ public class Main {
 
 		for(int i=0;i<timesize;i++){//i为时刻表的下标，也即对应时刻,这里与site的下标一样
 			String res="";
+			int itemp=i;
 			for(int j=0;j<dotlist.size();j++){//j为用户标，对应的用户节点
-				int itemp=i;  //若qos>阈值，则寻找下一个可用边缘节点
-				String dotnametemp=dotlist.get(j);
-				res=res+dotnametemp+":";
+                String dotnametemp=dotlist.get(j);
+                res=res+dotnametemp+":";
+//			    if(dotdemandtable[i][j]>0){
+//                    res=res+dotnametemp+":";
+//                }
+			    while(dotdemandtable[itemp][j]>0){
+			        //若qos>阈值，则寻找下一个可用边缘节点
 
-				while(qostable[i][j]>qosvalue){
-					i=i+1;//对应的qos表，如不符合，则找下一个site
-				}
-				//while ()
-				if(qostable[i][j]<=qosvalue){
-					int index=i;
-					String sitenametemp=bandname.get(index);
-					int bandvalue=dotdemandtable[itemp][j];
-					if(bandsite.get(index)>bandvalue){
-						bandsite.set(index,bandsite.get(index)-bandvalue);
-						ArrayList<Integer> nu=new ArrayList<>();
-						if(sitebandlinetime.containsKey(sitenametemp)){
-							nu=sitebandlinetime.get(sitenametemp);
+                    while(i<timesize && qostable[i][j]>qosvalue){
+                        if(i==timesize-1){
+                            i=0;
+                        }else {
+							i=i+1;//对应的qos表，如不符合，则找下一个site
 						}
-						nu.add(bandvalue);
-						sitebandlinetime.put(sitenametemp,nu);
-						dotdemandtable[itemp][j]-=bandvalue;
-					}
+                    }
+                    //while ()
+                    int bandvalue=dotdemandtable[itemp][j];
+                    if(bandvalue==0){
+                        break;
+                    }
+                    else if(qostable[i][j]<=qosvalue && bandvalue>0){
+                        //
+                        int index=i;//这个不固定
 
-					res=res+"<"+sitenametemp+","+bandvalue+">"+",";
-				}
+                        while(bandsite.get(index)<bandvalue){
+                            index++;
+                        }
+                        String sitenametemp=bandname.get(index);
+                        if(bandsite.get(index)>=bandvalue){
+//							String dotnametemp=dotlist.get(j);
+//							res=res+dotnametemp+":";
+                            bandsite.set(index,bandsite.get(index)-bandvalue);
+                            ArrayList<Integer> nu=new ArrayList<>();
+                            if(sitebandlinetime.containsKey(sitenametemp)){
+                                nu=sitebandlinetime.get(sitenametemp);
+                            }
+                            nu.add(bandvalue);
+                            sitebandlinetime.put(sitenametemp,nu);
+                            dotdemandtable[itemp][j]-=bandvalue;
+                        }
+                        res=res+"<"+sitenametemp+","+bandvalue+">"+",";
+                    }
+                }
 				i=itemp;
 				res=res.substring(0,res.length()-1);
 				res=res+"\n";
@@ -93,16 +109,27 @@ public class Main {
 		}
 		Out out1 = new Out();
 		out1.output(resstring);
-		Set<String> e=sitebandlinetime.keySet();
-		for(String e1:e){
-			System.out.print("网络节点"+e1+":");
-			ArrayList<Integer> listtemp=sitebandlinetime.get(e1);
-			for(Integer e2:listtemp){
-				System.out.print(","+e2);
-			}
-			System.out.println();
-		}
 
+        Excul excul = new Excul(sitebandlinetime);
+
+
+        Set<String> e=sitebandlinetime.keySet();
+//		for(String e1:e){
+//			System.out.print("网络节点"+e1+":");
+//			ArrayList<Integer> listtemp=sitebandlinetime.get(e1);
+//			for(Integer e2:listtemp){
+//				System.out.print(","+e2);
+//			}
+//			System.out.println();
+//		}
+
+		double a=4.9;
+		int b=0;
+        if(a>(int)a){
+            b=(int)a+1;
+        }else{
+            b=(int)a;
+        }//System.out.println(b);向上取整
 	}
 	public void solution(){
 	}
